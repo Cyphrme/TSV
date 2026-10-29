@@ -32,11 +32,17 @@ Apply the following replacements in order:
 3. Replace newline with `\n`
 
 **Unescaping algorithm**
-Apply the following replacements in order:
+Scan left to right. At each backslash, take it together with the next octet
+and replace the pair, then continue after it:
 
-1. Replace `\\` with `\`
-2. Replace `\t` with tab
-3. Replace `\n` with newline
+- `\\` becomes `\`
+- `\t` becomes tab
+- `\n` becomes newline
+
+Any other pair, or a trailing backslash, is an error.
+
+Replacing each pair across the whole field in turn is not equivalent: the
+field `\\t`, which encodes a backslash followed by `t`, would become a tab.
 
 ## Escape Example
 **Source input**
@@ -98,8 +104,8 @@ Normative octet grammar ([RFC 5234](https://www.rfc-editor.org/rfc/rfc5234)).
 file                = *terminated-record [unterminated-record]
 terminated-record   = fields LF
 unterminated-record = nonempty-fields
-fields              = field *(*HTAB field)
-nonempty-fields     = 1*field-unit *(*HTAB field)
+fields              = field *(HTAB field)
+nonempty-fields     = 1*field-unit *(HTAB field)
                     / HTAB fields
 field               = *field-unit
 field-unit          = unescaped / escape
